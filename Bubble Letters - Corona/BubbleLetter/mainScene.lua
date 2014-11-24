@@ -419,8 +419,9 @@ function CheckWord()
       startCounter = nil
       display.remove(groundLine)
       wrong = wrong -1
+
       dword = display.newText("Game Over",display.contentWidth/2,100,native.systemFontBold,26)    
-      transition.to(dword, {time = 5000,alpha=0, y=50})
+      transition.to(dword, {time = 5000,alpha=0, y=50,onComplete = removeWScore})
 
       
       display.remove(w3)
@@ -666,6 +667,7 @@ function removeWScore()
        storyboard.gotoScene("End_Game")
     end  
 
+print(wrong)
     if(wrong == 0)then
       storyboard.gotoScene("End_Game")
     end

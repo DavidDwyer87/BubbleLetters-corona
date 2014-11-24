@@ -19,7 +19,7 @@ function onComplete(event)
 			physics.start()
 			gdata.visual(true)
 		elseif(index == 2) then
-			native.requestExit()
+			story.gotoScene("MenuScene")
 		end
 	end
 end
