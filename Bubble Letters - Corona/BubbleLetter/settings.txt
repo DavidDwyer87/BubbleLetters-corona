@@ -1,0 +1,5 @@
+topWordScore=6
+topword=RUB
+topScore=29
+current=0
+sound=true
