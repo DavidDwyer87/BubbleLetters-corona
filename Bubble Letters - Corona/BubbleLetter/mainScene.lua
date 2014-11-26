@@ -613,9 +613,13 @@ function doCountdown()
       --when bubble below the limit increment by one.
       if (counter<limit) then
         createBubble('')
-        counter = counter+1
+         if (gdata.getvisual() == true) then
+          counter = counter+1
+         end
+
         startTimer(movingTime,1)
 
+ if (gdata.getvisual() == true) then
         if(counter == limit-15) then
           dword = display.newText("Running out of space\n for these bubbles",display.contentWidth/2,100,native.systemFontBold,26)    
           transition.to(dword, {time = 2000,alpha=0, y=50,onComplete = removeWScore})
@@ -652,6 +656,7 @@ function doCountdown()
       end      
     end    
   end 
+end
   
 end
 
