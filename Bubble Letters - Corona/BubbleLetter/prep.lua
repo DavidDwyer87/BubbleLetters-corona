@@ -50,6 +50,14 @@ local s_txtlb = nil
 local dic_txt=nil
 local dictionary = nil
 local learn = nil
+local pause = nil
+local pause_txt = nil
+local pause_header = nil
+local pause_example = nil
+local wrong = nil
+local wrong_header = nil
+local wrong_txt = nil
+
 
 
 --non UI
@@ -97,8 +105,8 @@ function scene:createScene( event )
       onEvent=menug
   }  
 
-  counter = math.random(2)
-  --counter = 1
+  counter = math.random(4)
+  counter = 4
   doCountdown()  
 end
  
@@ -157,6 +165,11 @@ function scene:exitScene( event )
   display.remove(s_txtlb)
   display.remove(dic_txt)
 
+  display.remove(pause)
+  display.remove(pause_txt)
+  display.remove(pause_header)
+  display.remove(pause_example)
+
 end
  
 -- Called AFTER scene has finished moving offscreen:
@@ -207,6 +220,11 @@ function scene:destroyScene( event )
   d_txtlb=nil
   t_txtlb=nil
   s_txtlb=nil
+
+  pause = nil
+  pause_txt = nil
+  pause_header = nil
+  pause_example = nil
 
   --non UI
   btxt =""
@@ -353,16 +371,45 @@ function dict_info()
   }
 end
 
+function pause_info()
+  pause = display.newImageRect("images/buttons/mainScene/Pause.png",64,64);
+  pause.x=50
+  pause.y=logo.y+170
+
+  pause_header = display.newText("Pause the game",display.contentWidth-160,pause.y-15,native.systemFontBold,18)
+  local txt = "You can pause the game by\n tapping the back button on\n your android device.\n\n"..
+  "The button should look\n something like this."
+  pause_txt = display.newText(txt,display.contentWidth-135,pause.y+50,native.systemFontBold,14)
+
+  pause_example = display.newImageRect("images/UI/Share-04-128.png",64,64)
+  pause_example.x = display.contentWidth/2
+  pause_example.y = pause_txt.y+110
+
+end
+
+function wrong_info()
+  wrong = display.newImageRect("images/UI/wrong.png",64,64)
+  wrong.x=50
+  wrong.y=logo.y+170
+
+  wrong_header = display.newText("Chances",display.contentWidth-175,wrong.y-15,native.systemFontBold,18)
+  local txt = "Each game give you the player \n3 chances to misspell a word. \nOnce the those 3 chances are \nup the game is over.\n\n"..
+  "The chance can be restored. \nFor every 500 points gained \none chance is restored."
+  wrong_txt = display.newText(txt,display.contentWidth-110,wrong.y+70,native.systemFontBold,14)
+
+
+end
+
 function doCountdown()
   -- body
-  if (counter>3) then
+  if (counter>4) then
     counter=1
   end
 
   display.remove(img)
   display.remove(bomb_txt)
   btxt = ""
-  
+
   if (etime==15000) then
     if(counter==1) then      
       sun_slide()
@@ -371,6 +418,10 @@ function doCountdown()
       triple_slide()
     elseif(counter==2)then     
       dict_info()
+    elseif(counter==3)then
+      pause_info()
+    elseif(counter==4)then
+      wrong_info()     
     end
     --clocktime = timer.performWithDelay(etime,doCountdown,1)
   end
