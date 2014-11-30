@@ -67,13 +67,14 @@ end
 
 function Read_Settings()
   
-  local path = system.pathForFile( "settings.txt", system.ResourceDirectory )
+  local path = system.pathForFile( "settings.txt", system.DocumentsDirectory )
   local saveData = "topWordScore=\n"..
   					"topword=\n"..
                    "topScore=\n"..
                    "current=\n"..
                    "sound=true\n"
-  if(path == nil)then
+
+  if(path ~= nil)then
     local file = io.open( path, "w" )
     file:write( saveData )
 
@@ -137,7 +138,7 @@ function write_Settings()
 		state = "false"
 	end
 
-	local path = system.pathForFile( "settings.txt", system.ResourceDirectory )
+	local path = system.pathForFile( "settings.txt", system.DocumentsDirectory )
 
 	local saveData = "topWordScore="..wordScore.."\n"..
 					"topword="..word.."\n"..
