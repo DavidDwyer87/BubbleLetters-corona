@@ -284,7 +284,7 @@ function double_slide()
   dGroup.x=40
   dGroup.y=Group.y+70
 
-  local dub_txt = "-The orange bubble represent a \ndubble word score.\n"
+  local dub_txt = "-The orange bubble represents a \ndouble word score.\n"
   d_txtlb = display.newText(dub_txt, display.contentWidth-130,dGroup.y, native.systemFontBold, 14 )
 end
 
@@ -312,7 +312,7 @@ function reg_slide()
   Group.y=simg.y+100
 
   local reg_txt ="Each bubble contains a letter and \na score. You can spell a word\nby tapping "..
-  "the bubble.The score is\ntally by summing-up the number \nassociated with each letter.\n"
+  "the bubble.The score is\ntallied by the number \nassociated with each letter.\n"
   txtlb = display.newText(reg_txt, display.contentWidth-135,Group.y, native.systemFontBold, 14)
 end
 
@@ -337,8 +337,8 @@ function dict_info()
   dictionary.x=50
   dictionary.y=logo.y+230
   
-  local txt = " Please visit our word\n online dictionary to improve\n your vocabulary or to find\n scores for word.\n\n"..
-  " To access our online\n dictionary now click the\n learn button."
+  local txt = " Please visit our\n online dictionary to improve\n your vocabulary or to find\n scores for word.\n\n"..
+  " To access our online\n dictionary now click the\n word button."
   dic_txt = display.newText(txt,display.contentWidth-135,dictionary.y,native.systemFontBold,14)
 
   learn = widget.newButton

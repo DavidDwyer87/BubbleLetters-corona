@@ -96,7 +96,7 @@ function scene:createScene( event )
   dub_bub.width  = 48
   dub_bub.height = 48 
 
-  local dub_txt = "-The orange bubble represent a \ndubble word score.\n"
+  local dub_txt = "-The orange bubble represents a \ndouble word score.\n"
   dub_txtlb = display.newText(dub_txt, display.contentWidth-130,300, native.systemFontBold, 14 )
  
   letterText2 = display.newText( "B", 0,10, native.systemFontBold, 20 )
@@ -143,7 +143,7 @@ function scene:createScene( event )
   tripGroup.y=350
 
   reg_text ="Each bubble contains a letter and \na score. You can spell a word\nby tapping "..
-  "the bubble.The score is\ntally by summing-up the number \nassociated with each letter.\n"
+  "the bubble.The score is\ntallied by the number \nassociated with each letter.\n"
   
   reg_desc = display.newText(reg_text, display.contentWidth-130,225, native.systemFontBold, 14 ) 
   
