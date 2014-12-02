@@ -7,15 +7,14 @@ local current = 0
 local allballs = {}
 local startTimer = true
 
-local path = system.pathForFile("settings.txt", system.DocumentsDirectory)
-
 
 
 function setTopWordScore(score,tword)
-	if (tonumber(score)>tonumber(wordScore)) then
+
+	if (score>wordScore) then
 		wordScore = score
 		word = tword
-	end
+	end	
 	write_Settings()
 end
 
@@ -26,7 +25,6 @@ function setScore(score)
 	if (scoreNum==nil) then
 		scoreNum=0
 	end
-	print(scoreNum)
 
 	if (tonumber(score)>tonumber(scoreNum)) then
 		scoreNum = score
@@ -69,30 +67,30 @@ end
 
 function Read_Settings()
   
-  
+  local path = system.pathForFile( "settings.txt", system.DocumentsDirectory )
   local saveData = "topWordScore=\n"..
   					"topword=\n"..
                    "topScore=\n"..
                    "current=\n"..
                    "sound=true\n"
 
+  if(path ~= nil)then
+    local file = io.open( path, "w" )
+    file:write( saveData )
 
-
-  -- io.open opens a file at path. returns nil if no file found
-  local fileHandle, errorString = io.open( path, "r" )
-
-  if fileHandle then  	
-  	
-	for line in fileHandle:lines() do
+	io.close( file )
+	file = nil
+  else
+	local file = io.open( path, "r" )
+	for line in file:lines() do
 
 		--get top word score
 		if(string.find(line,"topWordScore="))then
-			if(line:sub(14)=="")then
+			if(line:sub(14)==nil)then
 				wordScore = 0
 			else
-				wordScore = line:sub(14)				
-			end	
-			print("hello it works"..wordScore)		 
+				wordScore = line:sub(14)
+			end			 
 		end
 
 		if(string.find(line,"topword="))then
@@ -112,7 +110,7 @@ function Read_Settings()
 		end
 
 		if(string.find(line,"topScore="))then
-			if(line:sub(10)=="")then
+			if(line:sub(10)==nil)then
 				scoreNum=0
 			else
 				scoreNum=line:sub(10)
@@ -127,15 +125,7 @@ function Read_Settings()
     	end
 	end
 
-	io.close( fileHandle )
-	fileHandle = nil
-  else
-  	 local file = io.open( path, "w" )
-    file:write( saveData )
-
-	io.flush()
 	io.close( file )
-
 	file = nil
   end  
 end
@@ -148,16 +138,17 @@ function write_Settings()
 		state = "false"
 	end
 
+	local path = system.pathForFile( "settings.txt", system.DocumentsDirectory )
+
 	local saveData = "topWordScore="..wordScore.."\n"..
 					"topword="..word.."\n"..
                    "topScore="..scoreNum.."\n"..
                    "current="..current.."\n"..
                    "sound="..state
-    --print(saveData)
+
     local file = io.open( path, "w" )
     file:write( saveData )
 
-    io.flush()
 	io.close( file )
 	file = nil
 end

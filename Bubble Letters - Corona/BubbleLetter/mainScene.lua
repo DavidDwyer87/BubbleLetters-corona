@@ -97,7 +97,6 @@ local tscore = 0
 local bool_tick = false
 local soundState = gdata.getSound()
 local wrong = 3
-local restore = 0
 
 -----------------------------------------------------------------------------
 --END
@@ -160,8 +159,6 @@ function scene:exitScene( event )
   display.remove(topword)
   display.remove(topScore)
   display.remove(w1)
-  display.remove(w2)
-  display.remove(w3)
   display.remove(pause) 
 
 
@@ -205,8 +202,6 @@ function scene:destroyScene( event )
   topWScorelb = nil
   twscorelb = nil
   w1=nil
-  w2=nil
-  w3=nil
   pause=nil
 end
  
@@ -402,22 +397,10 @@ function CheckWord()
 
      --adjust limit
     counter = counter-num
-    
+    --print("letters remaining "..counter)
+
     --update score
     updatescore(wordscore)
-
-    --keep a tally of the restore score
-    if(restore >=500)then
-      if(wrong==2)then
-        w3.isVisible = true
-        wrong = wrong + 1
-      elseif(wrong==1) then
-        w2.isVisible = true
-        wrong = wrong + 1
-      end
-    end
-
-    
 
   else --if word doesnt not exit in tables that its not a word  
     if(soundState)then      
@@ -441,11 +424,11 @@ function CheckWord()
       transition.to(dword, {time = 5000,alpha=0, y=50,onComplete = removeWScore})
 
       
-      w3.isVisible = false
+      display.remove(w3)
 
       gdata.setTopWordScore(topScore.text,topword.text)
       gdata.setScore(scoreCtrl.text)
-     
+      print("score:"..scoreCtrl.text)
 
        if(math.random(2)==2)then
           tapfortap.showInterstitial()
@@ -455,14 +438,12 @@ function CheckWord()
 
     if (wrong == 2) then
       wrong = wrong -1
-      w2.isVisible =  false
-      restore = 0
+      display.remove(w2)
     end
 
     if (wrong == 3) then
       wrong = wrong -1
-      w1.isVisible = false
-      restore = 0
+      display.remove(w1)
     end    
   end
   
@@ -664,14 +645,15 @@ function doCountdown()
           if(soundState)then
             audio.play(newScore)  
           end  
-        end  
+        end                 
+      else -- ensure that number of bubble dont pass the limit
         if (counter ==limit) then
           startCounter = nil
           display.remove(groundLine)
           dword = display.newText("Game Over",display.contentWidth/2,100,native.systemFontBold,26)    
           transition.to(dword, {time = 5000,alpha=0, y=50,onComplete = removeWScore} )             
-        end 
-      end    
+        end       
+      end      
     end    
   end 
 end
@@ -690,6 +672,7 @@ function removeWScore()
        storyboard.gotoScene("End_Game")
     end  
 
+print(wrong)
     if(wrong == 0)then
       storyboard.gotoScene("End_Game")
     end
@@ -706,7 +689,6 @@ function updatescore(score)
   -- body
   scores = scores+score
   scoreCtrl.text = scores
-  restore = scores
 end
 
 function createLevels()

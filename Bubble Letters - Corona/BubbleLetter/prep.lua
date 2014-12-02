@@ -106,7 +106,7 @@ function scene:createScene( event )
   }  
 
   counter = math.random(4)
-  --counter = 4
+  counter = 4
   doCountdown()  
 end
  
@@ -170,10 +170,6 @@ function scene:exitScene( event )
   display.remove(pause_header)
   display.remove(pause_example)
 
-  display.remove(wrong)
-  display.remove(wrong_header)
-  display.remove(wrong_txt)
-
 end
  
 -- Called AFTER scene has finished moving offscreen:
@@ -230,10 +226,6 @@ function scene:destroyScene( event )
   pause_header = nil
   pause_example = nil
 
-  wrong = nil
-  wrong_header = nil
-  wrong_txt = nil
-  
   --non UI
   btxt =""
   score=""
@@ -242,8 +234,6 @@ function scene:destroyScene( event )
   Group=nil
   dGroup=nil
   tGroup=nil
-
-  
 end
  
 -- Called if/when overlay scene is displayed via storyboard.showOverlay()
