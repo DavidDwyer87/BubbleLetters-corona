@@ -15,12 +15,18 @@ local play = nil
 local wordResource = nil
 local options = nil
 local howTo = nil
+local leader = nil
 
 local bg = nil
 local logo = nil
+local gdata  = require("GameData")
 
 local leaderboardId = ""
 local achievementId = ""
+local soundState = gdata.getSound()
+
+
+
  
 -- Clear previous scene
 storyboard.removeAll()
@@ -37,15 +43,15 @@ function scene:createScene(event)
 
   local group = self.view   
 
-    bg = display.newImageRect("images/UI/backgrounds/background3.png",display.contentWidth,display.contentHeight);
-	bg.x = display.contentWidth/2;
-	bg.y = display.contentHeight/2;
+    bg = display.newImageRect("images/UI/backgrounds/background5.png",display.contentWidth,display.contentHeight);
+	bg.x = display.contentWidth*0.5;
+	bg.y = display.contentHeight*0.5;
 
-	group:insert(bg)
+	group:insert(bg)	
 
-	logo = display.newImageRect("images/UI/bubbleLogo.png",380,180);
-	logo.x =150;
-	logo.y =90;
+	logo = display.newImageRect("images/UI/bubbleLogo.png",380,180)
+	logo.x =display.contentWidth*0.5;
+	logo.y = display.contentHeight*0.15;
 
 	group:insert(logo)
 
@@ -54,7 +60,7 @@ function scene:createScene(event)
 	{
 
 		left = 160/2,
-		top =  250,
+		top = logo.y+120,
 		--width = 350,
 		--height = 48,	
 	    --label = "Play",
@@ -68,8 +74,8 @@ function scene:createScene(event)
 	howTo = widget.newButton
 	{
 
-		left = display.contentWidth-60,
-		top =  display.contentHeight-100,
+		left = display.contentWidth-50,
+		top =  display.contentHeight*0.77,
 		width = 48,
 		height = 48,	
 	    --label = "Learn",
@@ -79,11 +85,23 @@ function scene:createScene(event)
 	}
 	howTo._view._label.size =40;
 
+	leader = widget.newButton
+	{
+		left = display.contentWidth-50,
+		top =  howTo.y-80,
+		width = 48,
+		height = 48,	
+	    --label = "Learn",
+		font = "Arial",
+		defaultFile="images/buttons/Medal.png",
+		onRelease = lead
+	}
+
 	wordResource = widget.newButton
 	{	
 
 		left = 160/2,
-		top =  305,
+		top = play.y+15,
 		--width = 350,
 		--height = 48,	
 	    --label = "Words",
@@ -98,7 +116,7 @@ function scene:createScene(event)
 	{
 
 		left = 160/2,
-		top =  360,
+		top = wordResource.y+15,
 		--width = 350,
 		--height = 48,	
 		font = "Arial",	
@@ -135,6 +153,7 @@ function scene:exitScene( event )
   display.remove(wordResource)
   display.remove(options)
   display.remove(howTo)
+  display.remove(leader)
   
 end
  
@@ -153,6 +172,7 @@ function scene:destroyScene( event )
   options = nil
   wordResource = nil
   howTo = nil  
+  leader = nil
 end
  
 -- Called if/when overlay scene is displayed via storyboard.showOverlay()
@@ -195,6 +215,10 @@ function handleOptionEvent(event)
 		storyboard.gotoScene("Options")	
 	end
 end
+
+function lead(event)
+	storyboard.gotoScene("End_Game")
+end 
  
 ---------------------------------------------------------------------------------
 -- END OF YOUR IMPLEMENTATION

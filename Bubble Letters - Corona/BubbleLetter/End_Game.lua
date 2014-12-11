@@ -55,7 +55,7 @@ function scene:createScene( event )
 
   --gs.submitScore()
 
-  bg = display.newImageRect("images/UI/backgrounds/endbackground.png",display.contentWidth,display.contentHeight)
+  bg = display.newImageRect("images/UI/backgrounds/background7.png",display.contentWidth,display.contentHeight)
   bg.x= display.contentWidth/2
   bg.y=display.contentHeight/2
 
@@ -96,10 +96,10 @@ function scene:createScene( event )
 
   menu = widget.newButton
   {
-      left=10,
-      top=display.contentHeight-100,
-      width=140,
-      height=80,
+      left=2,
+      top=display.contentHeight-120,
+      width=100,
+      height=60,
       defaultFile="images/buttons/menu_btn.png",
       overFile="images/buttons/menu_btn_press.png",
       onRelease=menucall
@@ -107,10 +107,10 @@ function scene:createScene( event )
 
   play_again = widget.newButton
   {
-      left=display.contentWidth-150,
-      top=display.contentHeight-100,
-      width=140,
-      height=80,
+      left=display.contentWidth-102,
+      top=display.contentHeight-120,
+      width=100,
+      height=60,
       defaultFile="images/buttons/play_again_btn.png",
       overFile="images/buttons/play_again_btn_press.png",
       onRelease=playAgain

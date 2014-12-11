@@ -49,7 +49,7 @@ local trip_txtlb = nil
 function scene:createScene( event )
   local group = self.view
   
-  bg = display.newImageRect("images/UI/backgrounds/prepBackground.png",display.contentWidth,display.contentHeight)
+  bg = display.newImageRect("images/UI/backgrounds/background5.png",display.contentWidth,display.contentHeight)
   bg.x=display.contentWidth/2
   bg.y=display.contentHeight/2
 
@@ -149,8 +149,8 @@ function scene:createScene( event )
   
   menu = widget.newButton
   {
-      left=10,
-      top=display.contentHeight-110,
+      left=2,
+      top=display.contentHeight-120,
       width=100,
       height=60,
       defaultFile="images/buttons/menu_btn.png",

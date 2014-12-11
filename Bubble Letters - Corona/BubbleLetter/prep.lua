@@ -57,8 +57,8 @@ local pause_example = nil
 local wrong = nil
 local wrong_header = nil
 local wrong_txt = nil
-
-
+local star = nil
+local star_txt=nil
 
 --non UI
 local btxt =""
@@ -71,17 +71,17 @@ local dGroup = display.newGroup()
 
 
 --tapfortap.initialize("f1408a971d4af1550cd3d75bc50b26e6")
--- Called when the scene's view does not exist:
+--Called when the scene's view does not exist:
 function scene:createScene( event )
   local group = self.view
  
-  bg = display.newImageRect("images/UI/backgrounds/prepBackground.png",display.contentWidth,display.contentHeight);
+  bg = display.newImageRect("images/UI/backgrounds/background6.png",display.contentWidth,display.contentHeight);
   bg.x = display.contentWidth/2;
   bg.y = display.contentHeight/2;
 
   logo = display.newImageRect("images/UI/bubble_logo2.png",310,100)
   logo.x=340/2
-  logo.y=50
+  logo.y=60
 
   ready = widget.newButton
   {
@@ -96,8 +96,8 @@ function scene:createScene( event )
 
   menu = widget.newButton
   {
-      left=10,
-      top=display.contentHeight-100,
+      left=2,
+      top=display.contentHeight-120,
       width=100,
       height=60,
       defaultFile="images/buttons/menu_btn.png",
@@ -105,8 +105,8 @@ function scene:createScene( event )
       onEvent=menug
   }  
 
-  counter = math.random(4)
-  --counter = 4
+  counter = math.random(6)
+  --counter = 1
   doCountdown()  
 end
  
@@ -174,6 +174,9 @@ function scene:exitScene( event )
   display.remove(wrong_header)
   display.remove(wrong_txt)
 
+  display.remove(star)
+  display.remove(star_txt)
+
 end
  
 -- Called AFTER scene has finished moving offscreen:
@@ -233,6 +236,9 @@ function scene:destroyScene( event )
   wrong = nil
   wrong_header = nil
   wrong_txt = nil
+
+  star = nil
+  star_txt = nil
   
   --non UI
   btxt =""
@@ -310,7 +316,7 @@ function double_slide()
   dGroup:insert(d_val)
 
   dGroup.x=40
-  dGroup.y=Group.y+70
+  dGroup.y=Group.y+90
 
   local dub_txt = "-The orange bubble represents a \ndouble word score.\n"
   d_txtlb = display.newText(dub_txt, display.contentWidth-130,dGroup.y, native.systemFontBold, 14 )
@@ -337,11 +343,11 @@ function reg_slide()
   Group:insert(val)
 
   Group.x=40
-  Group.y=simg.y+100
+  Group.y=logo.y+140
 
   local reg_txt ="Each bubble contains a letter and \na score. You can spell a word\nby tapping "..
   "the bubble.The score is\ntallied by the number \nassociated with each letter.\n"
-  txtlb = display.newText(reg_txt, display.contentWidth-135,Group.y, native.systemFontBold, 14)
+  txtlb = display.newText(reg_txt, display.contentWidth-135,Group.y+20, native.systemFontBold, 14)
 end
 
 function sun_slide()
@@ -350,7 +356,7 @@ function sun_slide()
   simg.width = 128
   simg.Height = 128
   simg.x=40
-  simg.y=logo.y+120
+  simg.y=logo.y+190
   s_letterText =  display.newText("Score\n"..
     "   17", 45,simg.y, native.systemFontBold, 17)
   s_letterText:setTextColor(0,0,0)
@@ -398,21 +404,31 @@ function pause_info()
 end
 
 function wrong_info()
-  wrong = display.newImageRect("images/UI/wrong.png",64,64)
+  wrong = display.newImageRect("images/UI/life.png",64,64)
   wrong.x=50
-  wrong.y=logo.y+170
+  wrong.y=logo.y+180
 
   wrong_header = display.newText("Chances",display.contentWidth-175,wrong.y-15,native.systemFontBold,18)
   local txt = "Each game give you the player \n3 chances to misspell a word. \nOnce the those 3 chances are \nup the game is over.\n\n"..
   "The chance can be restored. \nFor every 500 points gained \none chance is restored."
   wrong_txt = display.newText(txt,display.contentWidth-110,wrong.y+70,native.systemFontBold,14)
-
-
 end
+function starInfo()
+  star = display.newImageRect("images/UI/bigstar.png",96,96)
+  star.x=50
+  star.y=logo.y+170
+
+  local txt = "The star is a tool you can use \nto get rid those unwanted letters."..
+  "\nTo activate the star just top the \nstar at the top of the screen.\n\n"..
+  "When ever you activate the star \nyou will a lmited amount of time \nto get rid of unwanted letters."
+
+  star_txt = display.newText(txt,display.contentWidth-110,star.y+20,native.systemFontBold,14)
+end
+
 
 function doCountdown()
   -- body
-  if (counter>4) then
+  if (counter>6) then
     counter=1
   end
 
@@ -422,7 +438,6 @@ function doCountdown()
 
   if (etime==15000) then
     if(counter==1) then      
-      sun_slide()
       reg_slide()
       double_slide()
       triple_slide()
@@ -431,7 +446,11 @@ function doCountdown()
     elseif(counter==3)then
       pause_info()
     elseif(counter==4)then
-      wrong_info()     
+      wrong_info()  
+    elseif(counter==5)then
+      starInfo() 
+    elseif(counter==6)then
+      sun_slide()
     end
     --clocktime = timer.performWithDelay(etime,doCountdown,1)
   end

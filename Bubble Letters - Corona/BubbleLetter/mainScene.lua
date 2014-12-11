@@ -12,7 +12,6 @@ storyboard.removeAll()
 -- local forward references should go here --
 local widget = require("widget")
 local physics = require("physics")
-local sqlite3 = require("sqlite3")
 local tapfortap = require("plugin.tapfortap")
 local gdata  = require("GameData")
 
@@ -75,18 +74,26 @@ local topword = nil
 local twscorelb = nil
 local topScore = nil
 local bomb = nil
-local w1 = nil
+--local w1 = nil
 local pause = nil
 --local w2 = nil
---local w3 = nil
+local w3 = nil
 local wone = nil
 local groundLine = nil
 
 local pop = audio.loadStream("sounds/pop.mp3")
 local otherPop = audio.loadStream("sounds/Computer_Error.mp3")
 local newScore = audio.loadStream("sounds/Tick Tock.mp3")
-local violen = audio.loadStream("sounds/velvet_alert_descending.mp3")
-
+local violen = audio.loadStream("sounds/hipsbell.wav")
+local dot=nil
+local dotlb=nil
+local star=nil
+local stardotlb = nil
+local starVal = nil
+local bigStar = nil
+local bigstarlb = nil
+local smallstar = nil
+local ss=nil
 
 --varibles
 local move=0
@@ -98,6 +105,10 @@ local bool_tick = false
 local soundState = gdata.getSound()
 local wrong = 3
 local restore = 0
+local starCount = 0
+local cdown=3
+local hyper=false
+local starRestore = 0
 
 -----------------------------------------------------------------------------
 --END
@@ -111,9 +122,9 @@ local restore = 0
 function scene:createScene( event )
 
   local group = self.view
-   bg = display.newImageRect("images/UI/backgrounds/background.jpg",display.contentWidth,display.contentHeight)
+   bg = display.newImageRect("images/UI/backgrounds/background4.png",display.contentWidth,display.contentHeight)
    bg.x= display.contentWidth/2
-   bg.y=display.contentHeight/2
+   bg.y=display.contentHeight/2   
    
 
    --textbox for displaying text
@@ -164,6 +175,14 @@ function scene:exitScene( event )
   display.remove(w3)
   display.remove(pause) 
 
+  display.remove(dot)
+  display.remove(dotlb)
+  display.remove(star)
+  display.remove(stardotlb)
+  display.remove(starVal)
+  display.remove(bigStar)
+  display.remove(bigstarlb)
+  display.remove(smallstar)
 
   --removeEventListener("Tap",CheckWord)
   --removeEventListener("Tap",backSpace)
@@ -208,6 +227,15 @@ function scene:destroyScene( event )
   w2=nil
   w3=nil
   pause=nil
+
+  dot=nil
+  dotlb=nil
+  star=nil
+  stardotlb=nil
+  starVal=nil
+  bigStar=nil
+  bigstarlb=nil
+  smallstar = nil
 end
  
 -- Called if/when overlay scene is displayed via storyboard.showOverlay()
@@ -228,7 +256,7 @@ function setupButtons()
   -- body
   stopButton = widget.newButton
   {
-      left=15,
+      left=5,
       top=display.contentHeight-55,
       width=48,
       height=48,
@@ -240,7 +268,7 @@ function setupButtons()
 
   goButton = widget.newButton
   {
-      left=display.contentWidth-60,
+      left=display.contentWidth-50,
       top=display.contentHeight-55,
       width=48,
       height=48,
@@ -252,14 +280,15 @@ end
 
 function setupbar()
 
+
   -- body  
   readTextFile()
 
   tapfortap.prepareInterstitial()
 
-  bar = display.newImageRect('images/UI/bar.png',display.contentWidth,55)
+  bar = display.newImageRect('images/UI/bar.png',display.contentWidth,60)
   bar.x =200
-  bar.y =25
+  bar.y =30
 
   sun  = display.newImageRect("images/UI/Status-weather-clear-icon.png", 148,148)
   sun.x=25
@@ -269,51 +298,72 @@ function setupbar()
     " ",30,20, native.systemFontBold, 17)
   moves:setTextColor(0,0,0)  
 
+  topWScorelb = display.newImageRect("images/UI/panel.png",170,30)
+  topWScorelb.x=display.contentWidth-105
+  topWScorelb.y=40
+
+  twscorelb = display.newImageRect("images/UI/panel2.png",190,30)
+  twscorelb.x=display.contentWidth-95
+  twscorelb.y=15
+
+  w3 = display.newImageRect('images/UI/panelheart.png',69,30)
+  w3.x = display.contentWidth - 34
+  w3.y = topWScorelb.y+1
+
   
   scoreCtrl = display.newText(scores,30,40,native.systemFontBold,12)
   scoreCtrl:setTextColor( 0, 0, 0)  
 
-  topWScorelb = display.newText("Top word: ",display.contentWidth-120,15,native.systemFontBold,14)
-  topWScorelb:setTextColor( 0,0,0)
-
-  twscorelb = display.newText("Top word score: ",display.contentWidth-101,35,native.systemFontBold,14)
-  twscorelb:setTextColor(0,0,0)
-
-  topword = display.newText("-",display.contentWidth-41,15,native.systemFontBold,11)
-  topword:setTextColor(0,0,0)
+  topword = display.newText(" - ",display.contentWidth-55,15,native.systemFontBold,12)
 
   tscore = 0
-  topScore = display.newText(tscore,display.contentWidth-31,35,native.systemFontBold,11)
-  topScore:setTextColor(0,0,0)
+  topScore = display.newText(tscore,display.contentWidth-95,40,native.systemFontBold,12)
 
-  w1 = display.newImageRect("images/UI/wrong.png",32,32)
-  w1.x=sun.x+60
-  w1.y=sun.y
+  --display tthe chances that play has left
+  dotlb = display.newText("X"..wrong,display.contentWidth-20,topScore.y+1,native.systemFontBold,14)
 
-  w2 = display.newImageRect('images/UI/wrong.png',32,32)
-  w2.x=w1.x+30
-  w2.y=sun.y
 
-  w3 = display.newImageRect('images/UI/wrong.png',32,32)
-  w3.x=w2.x+30
-  w3.y=sun.y
- 
- --[[pause= widget.newButton
+   --the star is use to remove that the un-wanted letters
+  star = widget.newButton
   {
-      left=w1.x-70,
-      top=sun.y-30,
-      width=48,
-      height=48,
-      defaultFile="images/buttons/mainScene/Pause.png",      
-      onRelease= press_pause
-  }]]--
+      left=sun.x+55,
+      top=sun.y-23,
+      width=32,
+      height=32,
+      defaultFile='images/UI/star.png',
+      overFile="images/UI/starRed.png",
+      onRelease= hyperDrive
+  }
+
+  stardotlb =display.newImageRect('images/UI/greenDot.png',20,20)
+  stardotlb.x=star.x+22
+  stardotlb.y=star.y+14
+
+  --load files from settings 
+  starCount = gdata.getstars()
+
+  --load get points for stars
+  starRestore = gdata.getrscore()
+
+  starVal = display.newText(starCount,stardotlb.x,stardotlb.y,native.systemFontBold,16)
+
+  --[[w3 = display.newImageRect('images/UI/wrong.png',32,32)
+  w3.x=topword.x-150
+  w3.y=sun.y-10
+
+  dot = display.newImageRect('images/UI/greenDot.png',20,20)
+  dot.x = w3.x+23
+  dot.y = w3.y+14
+  
+ ]]--
  
 end
 
 function ground()
+
   -- body
-  groundLine = display.newRect(0,display.contentHeight-68,900, 1);
-  local lineLeft = display.newRect(0,display.contentHeight-300,2,display.contentHeight);
+  groundLine = display.newRect(display.contentWidth/2,display.contentHeight-75,display.contentWidth, 1)
+  local lineLeft = display.newRect(0,display.contentHeight-300,2,display.contentHeight)
   local lineRight = display.newRect(320,display.contentHeight-300,2,display.contentHeight)
 
     physics.addBody(groundLine, 'static',{bounce=0,friction=0})
@@ -326,6 +376,7 @@ function ground()
 end
 
 function CheckWord()
+
 
   --if text null on contain one letter
   if (string.len(theWord) <=1 or startCounter == nil) then
@@ -367,7 +418,8 @@ function CheckWord()
       if (choosenBalls[i].bubtype =="triple") then
         multiple=3
       end
-      --reomve word from temp array
+      --remove word from temp array
+      display.remove(choosenBalls[i])
       table.remove(choosenBalls[i])
     end    
     
@@ -398,26 +450,13 @@ function CheckWord()
     end
 
     --begin word tranition
-    transition.to(dword, {time = 2000,alpha=0, y=50,onComplete = removeWScore} )
+    transition.to(dword, {time = 2000,alpha=0, y=50} )
 
      --adjust limit
     counter = counter-num
     
     --update score
-    updatescore(wordscore)
-
-    --keep a tally of the restore score
-    if(restore >=500)then
-      if(wrong==2)then
-        w3.isVisible = true
-        wrong = wrong + 1
-      elseif(wrong==1) then
-        w2.isVisible = true
-        wrong = wrong + 1
-      end
-    end
-
-    
+    updatescore(wordscore)    
 
   else --if word doesnt not exit in tables that its not a word  
     if(soundState)then      
@@ -426,7 +465,7 @@ function CheckWord()
 
     if(wrong>1)then
       dword = display.newText("Not a word",display.contentWidth/2,100,native.systemFontBold,26)
-      transition.to(dword, {time = 2000,alpha=0, y=50,onComplete = removeWScore} )
+      transition.to(dword, {time = 2000,alpha=0, y=50} )
     end
 
     backSpace('tap')
@@ -436,33 +475,21 @@ function CheckWord()
       startCounter = nil
       display.remove(groundLine)
       wrong = wrong -1
+      dotlb.text = wrong
 
+    
       dword = display.newText("Game Over",display.contentWidth/2,100,native.systemFontBold,26)    
-      transition.to(dword, {time = 5000,alpha=0, y=50,onComplete = removeWScore})
-
-      
-      w3.isVisible = false
-
-      gdata.setTopWordScore(topScore.text,topword.text)
-      gdata.setScore(scoreCtrl.text)
-     
-
-       if(math.random(2)==2)then
-          tapfortap.showInterstitial()
-       end
-
+      transition.to(dword, {time = 5000,alpha=0, y=50,onComplete = removeWScore})    
     end 
 
     if (wrong == 2) then
-      wrong = wrong -1
-      w2.isVisible =  false
-      restore = 0
+      wrong = wrong -1      
+      dotlb.text = wrong
     end
 
     if (wrong == 3) then
-      wrong = wrong -1
-      w1.isVisible = false
-      restore = 0
+      wrong = wrong -1      
+      dotlb.text = wrong
     end    
   end
   
@@ -475,6 +502,7 @@ function CheckWord()
 end
 
 function backSpace(e)
+
 
   local length = table.maxn(choosenBalls) 
 
@@ -505,6 +533,7 @@ end
 
 function createBubble(l)
 
+
   -- body
   local vowels = {"A","E","I","O","U"}
 
@@ -515,11 +544,17 @@ function createBubble(l)
   local letterIndex
   local letter 
   local val
+  local cstar=false
   local bubtype = display.newText("reg", 0,10, native.systemFontBold, 1 )
   bubtype.x=0
   bubtype.y=0
 
-  if (l=="") then
+
+  if (tonumber(starRestore)>1000) then  --give user a star
+    cstar=true
+    starRestore=starRestore-1000
+    --print(starRestore)
+  elseif (l=="") then
     local prob = math.random(3)
 
     if (prob ==3) then
@@ -530,17 +565,21 @@ function createBubble(l)
       letterIndex = math.random(#alphabetArray)
       letter = alphabetArray[letterIndex]     
       val = scoreArray[letterIndex]
-    end   
+    end
   else
     letter = l
     local index = table.indexOf( alphabetArray, l)
     val = scoreArray[index]
+
   end 
 
   local double = math.random(15)
   local triple = math.random(30)
 
-  if (double==7) then
+  if(cstar==true)then
+    ball = display.newImage("images/UI/assests/Reg_bubble.png")  
+    bubtype.text="star"
+  elseif (double==7) then
     ball = display.newImage("images/UI/assests/Double_bubble.png")
     bubtype.text="double"
   elseif(triple==30) then
@@ -554,21 +593,32 @@ function createBubble(l)
   ball.width  = 48
   ball.height = 48
   ballRadius=23
-  
-  local letterText = display.newText( letter, 0,10, native.systemFontBold, 20 )
-  letterText:setTextColor(0,0, 0)
-  letterText.x = ball.x
-  letterText.y = ball.y
 
-  val = display.newText(val,10,10,native.systemFontBold,12)
-  val:setTextColor(0,0,0)
-  val.x = ball.x+10
-  val.y = ball.y+8
+  local letterText = nil
+  if (cstar==true) then
+    letterText = display.newImageRect("images/UI/star.png",32,32)
+    letterText.x = ball.x
+    letterText.y = ball.y
+  else
+    letterText = display.newText( letter, 0,10, native.systemFontBold, 20 )
+    letterText:setTextColor(0,0, 0)
+    letterText.x = ball.x
+    letterText.y = ball.y
+
+    val = display.newText(val,10,10,native.systemFontBold,12)
+    val:setTextColor(0,0,0)
+    val.x = ball.x+10
+    val.y = ball.y+8
+  end 
+  
   
   ballGroup:insert(bubtype)
   ballGroup:insert(ball)
   ballGroup:insert(letterText)
-  ballGroup:insert(val)
+  if (cstar==false) then
+    ballGroup:insert(val)
+  end
+  
   
   ballGroup.x = math.random(ballRadius,320-ballRadius*2)
   ballGroup.y= -40
@@ -578,30 +628,65 @@ function createBubble(l)
 
     ballGroup.name = "ball"
     ballGroup.letter = letter
-    ballGroup.val = val.text
+    if (cstar==false) then
+      ballGroup.val = val.text
+    end
+    
     ballGroup.bubtype = bubtype.text
 
     ballGroup:addEventListener('tap',formString)
     --table.insert( allBalls, ballGroup )  
-    gdata.setball(ballGroup)
+
+    
+  gdata.setball(ballGroup)
+    
   end
 end
 
 function formString(e)
 
-
   local thisSprite = e.target
-    local theLetter = thisSprite.letter
-  --print(thisSprite.val)
-  theWord = theWord..theLetter
-  theWordText.text = theWord
-  theWordText.x = display.contentWidth/2   
+  local theLetter = thisSprite.letter
 
-  table.insert( choosenBalls, thisSprite)
+
+
+  if(thisSprite.bubtype =="star")then
+    ss=thisSprite
+    thisSpirite = nil
+    starCount=starCount+1
+    starVal.text = starCount
+    transition.to( thisSprite, {time = 1000,alpha=0,x=w3.x-60,y=w3.y-16,onComplete=killStar} )    
+  elseif(hyper==true)then    
+    if (thisSprite.bubtype =="double") then
+      local n = thisSprite.val*2
+      updatescore(n)
+    elseif (thisSprite.bubtype =="triple") then
+      local n = thisSprite.val*3
+      updatescore(n)
+    else
+      updatescore(thisSprite.val)
+    end    
+
+    --adjust limit
+    counter = counter-1
+
+    dword = display.newText(thisSprite.letter.."               "
+      ..thisSprite.val,display.contentWidth/2,150,native.systemFontBold,26)
+    --begin word tranition
+    transition.to(dword, {time = 2000,alpha=0,y=50,onComplete=killStar})
+  else
+    theWord = theWord..theLetter
+    theWordText.text = theWord
+    theWordText.x = display.contentWidth/2  
+    table.insert( choosenBalls, thisSprite)  
+  end
+
+  
+  
   --print("sprite inserted into table")
-
-
-  display.remove(thisSprite) 
+  if (thisSprite.bubtype ~="star") then
+    display.remove(thisSprite) 
+  end  
   
   if(soundState)then
     audio.play(pop)
@@ -611,11 +696,16 @@ function formString(e)
   thisSpirite = nil
 end
 
+function killStar(event)
+ display.remove(ss)
+end
+
 function startTimer(etime,gtimer)
   clockTimer = timer.performWithDelay(etime,doCountdown,gtimer)
 end
 
 function doCountdown()
+
 
   if (startCounter == false) then
     if (counter <9) then
@@ -630,42 +720,78 @@ function doCountdown()
   else 
     if (startCounter==true) then
       --when bubble below the limit increment by one.
-      if (counter<limit) then
+    if (counter<limit) then
         createBubble('')
          if (gdata.getvisual() == true) then
           counter = counter+1
          end
 
-        startTimer(movingTime,1)
+        startTimer(movingTime,1)        
 
- if (gdata.getvisual() == true) then
+    if (gdata.getvisual() == true) then
+        --manage count down for star system
+        if(hyper==true)then          
+          cdown = cdown - 1
+          bigstarlb.text = cdown
+                    
+           --star animation
+          smallstar = display.newImageRect('images/UI/starWhite.png',32,32)
+
+           local x = math.random(40,80)
+            local y = math.random(10,30)
+            local pos = math.random(1,3)
+
+            if(pos==1)then
+              smallstar.x = bigStar.x+x
+            elseif(pos==2)then
+              smallstar.x = bigStar.x-x
+            else
+              smallstar.x = bigStar.x
+            end
+            
+            smallstar.y = 100+y
+
+          transition.to(smallstar, {time = 500,alpha=0, y=50,onComplete=moreStars})
+          
+          --a star has died
+          if(cdown<=0)then
+            --remove graphics
+            display.remove(bigstarlb)
+            display.remove(bigStar)
+
+            --reset count
+            cdown = 3
+            hyper=false
+          end
+        end
+
         if(counter == limit-15) then
           dword = display.newText("Running out of space\n for these bubbles",display.contentWidth/2,100,native.systemFontBold,26)    
           transition.to(dword, {time = 2000,alpha=0, y=50,onComplete = removeWScore})
 
-          if(soundState)then
+          --[[if(soundState)then
             audio.play(newScore) 
-          end        
+          end]]--        
         end
 
         if(counter == limit-10) then
           dword = display.newText("Running out of space\n for these bubbles",display.contentWidth/2,100,native.systemFontBold,26)    
           transition.to(dword, {time = 2000,alpha=0, y=50,onComplete = removeWScore})
 
-          if(soundState)then
+          --[[if(soundState)then
             audio.play(newScore)  
-          end        
+          end]]--        
         end
 
         if(counter == limit-5) then
           dword = display.newText("Running out of space\n for these bubbles",display.contentWidth/2,100,native.systemFontBold,26)    
           transition.to(dword, {time = 2000,alpha=0, y=50,onComplete = removeWScore})
 
-          if(soundState)then
+          --[[if(soundState)then
             audio.play(newScore)  
-          end  
+          end]]--  
         end  
-        if (counter ==limit) then
+        if (counter ==limit) then          
           startCounter = nil
           display.remove(groundLine)
           dword = display.newText("Game Over",display.contentWidth/2,100,native.systemFontBold,26)    
@@ -674,25 +800,46 @@ function doCountdown()
       end    
     end    
   end 
-end
-  
+  end  
 end
 
-function removeWScore()    
+function moreStars()
+
+  if(hyper==true)then
+    smallstar = display.newImageRect('images/UI/starWhite.png',32,32)
+
+    local x = math.random(40,80)
+    local y = math.random(10,30)
+    local pos = math.random(1,3)
+
+    if(pos==1)then
+      smallstar.x = bigStar.x+x
+    elseif(pos==2)then
+      smallstar.x = bigStar.x-x
+    else
+      smallstar.x = bigStar.x
+    end
+    
+    smallstar.y = 100+y
+
+    transition.to(smallstar, {time = 500,alpha=0, y=50,onComplete=moreStars})
+  end
+end
+
+function removeWScore() 
+
     --incomplete game
-    if (counter>=limit) then      
+    if (counter>=limit or wrong ==0) then 
+        print("push out")     
         gdata.setTopWordScore(topScore.text,topword.text)
-        gdata.setScore(scoreCtrl.text)
+        gdata.setScore(scoreCtrl.text,starRestore,starCount)
 
        if(math.random(2)==2)then
           tapfortap.showInterstitial()
-       end       
+       end 
+           
        storyboard.gotoScene("End_Game")
-    end  
-
-    if(wrong == 0)then
-      storyboard.gotoScene("End_Game")
-    end
+    end   
 end
 
 function getScores()
@@ -706,7 +853,23 @@ function updatescore(score)
   -- body
   scores = scores+score
   scoreCtrl.text = scores
-  restore = scores
+  
+  restore = restore + score
+  starRestore = starRestore + score
+
+  --keep a tally of the restore life
+    if(restore >=500)then
+      if(wrong==2)then
+        --w3.isVisible = true
+        wrong = wrong + 1
+        dotlb.text = wrong
+                
+      elseif(wrong==1) then
+        --w2.isVisible = true
+        wrong = wrong + 1
+        dotlb.text = wrong
+      end
+    end
 end
 
 function createLevels()
@@ -758,8 +921,20 @@ function createLevels()
   end  
 end
 
-function press_pause()
-   physics.pause()
+function hyperDrive(event)
+  if(hyper==false and tonumber(starCount)>0)then
+    bigStar = display.newImageRect('images/UI/bigstar.png',96,96)
+    bigStar.x=display.contentWidth/2
+    bigStar.y=stardotlb.y+80  
+
+    bigstarlb=display.newText(cdown,bigStar.x,bigStar.y,native.systemFontBold,32) 
+    hyper=true
+    starCount=starCount-1
+    starVal.text = starCount
+  elseif(starCount<=0)then
+    dword = display.newText("Out of stars",display.contentWidth/2,100,native.systemFontBold,26)
+    transition.to(dword, {time = 2000,alpha=0, y=50} )
+  end
 end
 
 function readTextFile()
@@ -773,11 +948,9 @@ function readTextFile()
      line = string.sub(line,1, #line);
      
      if (x<=42000) then
-      table.insert(words1,line)
-      
+        table.insert(words1,line)      
      else
         table.insert(words2,line)
-        --print(line)
      end
 
      x=x+1
@@ -787,10 +960,6 @@ function readTextFile()
   file = nil
   --print(""..#words1.."+"..#words2 )
 end
-
-
-
-
 ---------------------------------------------------------------------------------
 -- END OF YOUR IMPLEMENTATION
 ---------------------------------------------------------------------------------

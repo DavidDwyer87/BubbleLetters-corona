@@ -9,7 +9,7 @@ tapfortap.initialize("f1408a971d4af1550cd3d75bc50b26e6")
 tapfortap.createAdView(BOTTOM,CENTER,0,0)
 
 story.gotoScene("MenuScene")
---story.gotoScene("End_Game")
+--story.gotoScene("mainScene")
 
 function onComplete(event)
 	if (event.action == "clicked") then

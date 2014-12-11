@@ -23,13 +23,17 @@ local gd = require("GameData")
  local credits = nil
  local credit = nil
  local menu = nil
+ local music = nil
+ local musiclb = nil
  local soundState = nil
+ local state2 = nil
+
 
 -- Called when the scene's view does not exist:
 function scene:createScene( event )
   local group = self.view
   
-  bg = display.newImageRect("images/UI/backgrounds/optionBackground.png",display.contentWidth,display.contentHeight)
+  bg = display.newImageRect("images/UI/backgrounds/background5.png",display.contentWidth,display.contentHeight)
 	bg.x = display.contentWidth/2
 	bg.y = display.contentHeight/2
 
@@ -41,28 +45,39 @@ function scene:createScene( event )
   sound = widget.newButton
   {
       left=(display.contentWidth/2)-70,
-      top=(display.contentHeight/2)-70,
+      top=(display.contentHeight/2)-110,
       width=64,
       height=64,
       defaultFile="images/UI/speaker_volume-128.png",      
       onRelease=soundEvt
   }
 
-  credits = widget.newButton
+  music = widget.newButton
   {
       left=(display.contentWidth/2)-70,
       top=sound.y+54,
       width=64,
       height=64,
-      defaultFile="images/UI/info-user.png",
-      overFile="images/UI/info-user.png",
+      defaultFile="images/UI/music.png",
+      overFile="images/UI/music.png",
+      onRelease=musicEvt
+  }
+
+  credits = widget.newButton
+  {
+      left=(display.contentWidth/2)-70,
+      top=sound.y+130,
+      width=64,
+      height=64,
+      defaultFile="images/UI/sign-up.png",
+      overFile="images/UI/sign-up.png",
       onRelease=creditEvt
   }
 
   menu = widget.newButton
   {
-      left=10,
-      top=display.contentHeight-110,
+      left=2,
+      top=display.contentHeight-120,
       width=100,
       height=60,
       defaultFile="images/buttons/menu_btn.png",
@@ -78,9 +93,15 @@ function scene:createScene( event )
     state = "mute"
   end
 
-  credit =  display.newText("credits",credits.x+90,credits.y,native.systemFontBold,30)
+  if (gd.getMusic()) then
+    state2 = "loud"
+  else
+    state2 = "mute"
+  end
 
+  credit =  display.newText("credits",credits.x+90,credits.y,native.systemFontBold,30)
   soundlb = display.newText(state,sound.x+90,sound.y,native.systemFontBold,30)
+  musiclb = display.newText(state2,music.x+90,music.y,native.systemFontBold,30)
 
   
 end
@@ -107,6 +128,8 @@ function scene:exitScene( event )
   display.remove(menu)
   display.remove(credit)
   display.remove(credits)
+  display.remove(music)
+  display.remove(musiclb)
 end
  
 -- Called AFTER scene has finished moving offscreen:
@@ -125,6 +148,8 @@ function scene:destroyScene( event )
   menu = nil
   credit = nil
   credits = nil
+  music = nil
+  musiclb = nil
 end
  
 -- Called if/when overlay scene is displayed via storyboard.showOverlay()
@@ -146,14 +171,26 @@ function menucall(e)
 end
 
 function soundEvt(e)
-  if(getSound())then
+  if(gd.getSound())then
     soundlb.text="mute"
-    sound.defaultFile = "images/UI/speaker_volume-mute-128.png"
+    --sound.defaultFile = display.newImageRect("images/UI/speaker_volume-mute-128.png",64,64)   
     gd.setSound(false)  
   else
-    sound.defaultFile = "images/UI/speaker_volume-128.png"
+    --sound.defaultFile = display.newImageRect("images/UI/speaker_volume-128.png",64,64)    
     soundlb.text="loud"
     gd.setSound(true)
+  end
+end
+
+function musicEvt(e)
+   if(gd.getMusic())then
+    musiclb.text="mute"
+    --sound.defaultFile = display.newImageRect("images/UI/speaker_volume-mute-128.png",64,64)   
+    gd.setMusic(false)  
+  else
+    --sound.defaultFile = display.newImageRect("images/UI/speaker_volume-128.png",64,64)    
+    musiclb.text="loud"
+    gd.setMusic(true)
   end
 end
 
@@ -166,8 +203,7 @@ function creditEvt(e)
    "Neal Mcbean - graphic artist\n"..
    "----Contact info----\n"..
    "Email:NTekSolutions@gmail.com", 
-    { "OK"}, 
-    onComplete )
+    { "OK"})
 end
 
 
